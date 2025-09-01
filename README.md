@@ -50,8 +50,11 @@ node security-header-validator.js -s --file urls.txt
 # Export to CSV
 node security-header-validator.js -c results.csv --file urls.txt
 
-# Combine options
-node security-header-validator.js -p -s -c audit.csv --file urls.txt
+# Show security recommendations
+node security-header-validator.js -r --file urls.txt
+
+# Combine all options
+node security-header-validator.js -p -s -r -c audit.csv --file urls.txt
 ```
 
 ### Command Line Options
@@ -60,6 +63,7 @@ node security-header-validator.js -p -s -c audit.csv --file urls.txt
 - `-p, --progress` - Show progress bar during validation
 - `-s, --summary` - Show only summary table, hide detailed analysis
 - `-c, --csv <filename>` - Export results to CSV file
+- `-r, --recommendations` - Show security recommendations for fixing missing headers
 - `-h, --help` - Show help information
 
 ## 📊 Output Formats
@@ -74,6 +78,13 @@ Comprehensive breakdown including:
 - Security recommendations
 - Missing header warnings
 
+### Security Recommendations
+Actionable security fixes with:
+- Priority-based recommendations (HIGH 🔴, MEDIUM 🟡, LOW 🟢)
+- Exact HTTP headers to implement
+- Security impact explanations
+- Copy-paste ready configurations
+
 ### CSV Export
 Spreadsheet-ready format with:
 - Original and final URLs
@@ -83,6 +94,27 @@ Spreadsheet-ready format with:
 
 ### JSON Export
 Raw data format (`security-results.json`) for programmatic processing.
+
+## 🔧 Example Recommendations Output
+
+When using the `-r` flag, you'll get actionable security fixes:
+
+```
+🔧 SECURITY RECOMMENDATIONS:
+
+1. https://example.com - 3 recommendation(s):
+   🔴 HIGH - HSTS: Missing HTTP Strict Transport Security
+      💡 Fix: Add header: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      🎯 Impact: Prevents HTTPS downgrade attacks and man-in-the-middle attacks
+
+   🔴 HIGH - CSP: Missing Content Security Policy
+      💡 Fix: Add header: Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'
+      🎯 Impact: Prevents XSS attacks and code injection vulnerabilities
+
+   🟡 MEDIUM - X-Frame-Options: Missing X-Frame-Options protection
+      💡 Fix: Add header: X-Frame-Options: DENY
+      🎯 Impact: Prevents clickjacking attacks and UI redressing
+```
 
 ## 🛡️ Security Headers Checked
 

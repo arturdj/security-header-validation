@@ -311,7 +311,7 @@ class SecurityHeaderValidator {
         }
     }
 
-    printResults(results, showDetails = true) {
+    printResults(results, showDetails = true, showRecommendations = false) {
         console.log('\n📊 SECURITY HEADER VALIDATION RESULTS\n');
         
         // Create table header
@@ -406,6 +406,37 @@ class SecurityHeaderValidator {
                 console.log('');
             });
         }
+        
+        // Show recommendations if requested
+        if (showRecommendations) {
+            console.log('\n🔧 SECURITY RECOMMENDATIONS:\n');
+            
+            results.forEach((result, index) => {
+                if (result.error) {
+                    console.log(`${index + 1}. ${result.url} - ❌ Error: Cannot provide recommendations due to request failure\n`);
+                    return;
+                }
+                
+                const recommendations = this.generateRecommendations(result);
+                
+                if (recommendations.length === 0) {
+                    console.log(`${index + 1}. ${result.url} - ✅ All critical security headers are properly configured!\n`);
+                    return;
+                }
+                
+                console.log(`${index + 1}. ${result.url} - ${recommendations.length} recommendation(s):`);
+                
+                recommendations.forEach((rec, recIndex) => {
+                    const priorityIcon = rec.priority === 'HIGH' ? '🔴' : rec.priority === 'MEDIUM' ? '🟡' : '🟢';
+                    console.log(`   ${priorityIcon} ${rec.priority} - ${rec.header}: ${rec.issue}`);
+                    console.log(`      💡 Fix: ${rec.fix}`);
+                    console.log(`      🎯 Impact: ${rec.impact}`);
+                    if (recIndex < recommendations.length - 1) console.log('');
+                });
+                
+                console.log('');
+            });
+        }
     }
     
     exportToCSV(results, filename) {
@@ -454,6 +485,84 @@ class SecurityHeaderValidator {
         const csvContent = csvRows.join('\n');
         fs.writeFileSync(filename, csvContent);
         console.log(`\n📊 CSV results exported to ${filename}`);
+    }
+    
+    generateRecommendations(result) {
+        const recommendations = [];
+        const security = result.security;
+        const domain = new URL(result.finalUrl || result.url).hostname;
+        
+        if (!security.hsts.enabled) {
+            recommendations.push({
+                header: 'HSTS',
+                issue: 'Missing HTTP Strict Transport Security',
+                fix: `Add header: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`,
+                priority: 'HIGH',
+                impact: 'Prevents HTTPS downgrade attacks and man-in-the-middle attacks'
+            });
+        }
+        
+        if (!security.csp.enabled) {
+            recommendations.push({
+                header: 'CSP',
+                issue: 'Missing Content Security Policy',
+                fix: `Add header: Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'`,
+                priority: 'HIGH',
+                impact: 'Prevents XSS attacks and code injection vulnerabilities'
+            });
+        }
+        
+        if (!security.xFrameOptions.enabled) {
+            recommendations.push({
+                header: 'X-Frame-Options',
+                issue: 'Missing X-Frame-Options protection',
+                fix: `Add header: X-Frame-Options: DENY`,
+                priority: 'MEDIUM',
+                impact: 'Prevents clickjacking attacks and UI redressing'
+            });
+        }
+        
+        if (!security.xContentTypeOptions.enabled) {
+            recommendations.push({
+                header: 'X-Content-Type-Options',
+                issue: 'Missing MIME type protection',
+                fix: `Add header: X-Content-Type-Options: nosniff`,
+                priority: 'MEDIUM',
+                impact: 'Prevents MIME-type sniffing attacks and file upload exploits'
+            });
+        }
+        
+        if (!security.referrerPolicy.enabled) {
+            recommendations.push({
+                header: 'Referrer-Policy',
+                issue: 'Missing referrer policy',
+                fix: `Add header: Referrer-Policy: strict-origin-when-cross-origin`,
+                priority: 'MEDIUM',
+                impact: 'Protects user privacy and prevents information leakage'
+            });
+        }
+        
+        if (!security.permissionsPolicy.enabled) {
+            recommendations.push({
+                header: 'Permissions-Policy',
+                issue: 'Missing permissions policy',
+                fix: `Add header: Permissions-Policy: camera=(), microphone=(), geolocation=()`,
+                priority: 'LOW',
+                impact: 'Limits browser feature access and reduces attack surface'
+            });
+        }
+        
+        if (security.cors.enabled && security.cors.details && security.cors.details.isWildcard) {
+            recommendations.push({
+                header: 'CORS',
+                issue: 'Overly permissive CORS policy (wildcard)',
+                fix: `Replace Access-Control-Allow-Origin: * with specific domains`,
+                priority: 'HIGH',
+                impact: 'Prevents unauthorized cross-origin requests and data theft'
+            });
+        }
+        
+        return recommendations;
     }
     
     printTableRow(columns, widths) {
@@ -521,6 +630,12 @@ async function main() {
             describe: 'Export results to CSV file (optional filename, defaults to security-results.csv)',
             type: 'string'
         })
+        .option('recommendations', {
+            alias: 'r',
+            describe: 'Show security recommendations for fixing missing headers',
+            type: 'boolean',
+            default: false
+        })
         .help('h')
         .argv;
     
@@ -568,7 +683,7 @@ async function main() {
     const results = await validator.validateUrls(urlsToCheck, argv.progress);
     
     // Print formatted results
-    validator.printResults(results, !argv.summary);
+    validator.printResults(results, !argv.summary, argv.recommendations);
     
     // Export to CSV if requested
     if (argv.csv !== undefined) {
