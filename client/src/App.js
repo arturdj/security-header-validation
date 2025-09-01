@@ -349,26 +349,24 @@ function App() {
       <div className="header">
         <div className="brand-section">
           <div className="brand-text">
-            <span className="turn-text">TURN</span>
-            <div className="toggle-switch">
-              <div className="toggle-slider"></div>
-            </div>
-            <span className="bold-text">BOLD</span>
+            <span className="verify-text">VERIFY</span>
+            <div className="security-icon">🔒</div>
+            <span className="your-text">YOUR</span>
           </div>
-          <div className="ideas-text">
-            <span className="ideas">SECURITY</span>
-            <span className="brackets">{}</span>
-            <span className="into">INTO</span>
+          <div className="website-text">
+            <span className="website">WEBSITE</span>
+            <span className="brackets">&lt;/&gt;</span>
+            <span className="security">SECURITY</span>
           </div>
-          <div className="reality-text">
-            <span className="reality-script">PROTECTION</span>
-            <span className="reality">REALITY</span>
+          <div className="headers-text">
+            <span className="headers-script">HEADERS</span>
+            <span className="headers">VALIDATION</span>
           </div>
         </div>
         <div className="subtitle">
-          <span>Analyze and validate security headers on websites</span>
+          <span>Comprehensive security header analysis and recommendations</span>
           <div className="more-info">
-            <span>MAIS IMPACTANTE</span>
+            <span>START SCAN</span>
             <span className="arrow">&gt;</span>
           </div>
         </div>
