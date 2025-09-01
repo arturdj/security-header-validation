@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -9,7 +9,175 @@ function App() {
   const [error, setError] = useState('');
   const [showRecommendations, setShowRecommendations] = useState(true);
   const [expandedResults, setExpandedResults] = useState(new Set());
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMouseInHeader, setIsMouseInHeader] = useState(false);
+  const [terminalLines, setTerminalLines] = useState([]);
+  const [glitchText, setGlitchText] = useState({
+    verify: 'VERIFY',
+    your: 'YOUR',
+    website: 'WEBSITE',
+    security: 'SECURITY',
+    headers: 'HEADERS',
+    validation: 'VALIDATION'
+  });
+  const headerRef = useRef(null);
   const [uploadedFile, setUploadedFile] = useState(null);
+
+  // Initialize terminal lines with cURL commands
+  useEffect(() => {
+    const curlCommands = [
+      { type: 'command', text: '$ curl -I https://github.com' },
+      { type: 'response', text: 'HTTP/2 200' },
+      { type: 'header', text: 'strict-transport-security: max-age=31536000' },
+      { type: 'header', text: 'x-frame-options: deny' },
+      { type: 'command', text: '$ curl -I https://stackoverflow.com' },
+      { type: 'response', text: 'HTTP/1.1 200 OK' },
+      { type: 'header', text: 'content-security-policy: upgrade-insecure-requests' },
+      { type: 'header', text: 'x-content-type-options: nosniff' },
+      { type: 'command', text: '$ curl -I https://google.com' },
+      { type: 'response', text: 'HTTP/2 301' },
+      { type: 'header', text: 'referrer-policy: origin' },
+      { type: 'header', text: 'x-xss-protection: 0' },
+      { type: 'command', text: '$ curl -I https://cloudflare.com' },
+      { type: 'response', text: 'HTTP/2 200' },
+      { type: 'header', text: 'permissions-policy: interest-cohort=()' },
+      { type: 'header', text: 'cross-origin-embedder-policy: require-corp' }
+    ];
+
+    const initLines = curlCommands.map((cmd, index) => ({
+      id: index,
+      text: cmd.text,
+      type: cmd.type,
+      x: Math.random() * 70 + 15, // Random x position 15-85%
+      y: (index * 5) + Math.random() * 2, // Staggered vertical positions
+      targetX: Math.random() * 70 + 15,
+      targetY: (index * 5) + Math.random() * 2,
+      color: cmd.type === 'command' ? '#475569' : cmd.type === 'header' ? '#059669' : '#64748b',
+      opacity: 0.2,
+      highlighted: false
+    }));
+    setTerminalLines(initLines);
+  }, []);
+
+  // Animate terminal lines
+  useEffect(() => {
+    const animateInterval = setInterval(() => {
+      setTerminalLines(prev => prev.map(line => ({
+        ...line,
+        x: line.x + (line.targetX - line.x) * 0.02,
+        y: line.y + (line.targetY - line.y) * 0.02,
+        targetX: Math.abs(line.x - line.targetX) < 1 ? Math.random() * 80 + 10 : line.targetX,
+        targetY: Math.abs(line.y - line.targetY) < 1 ? Math.random() * 80 + 10 : line.targetY
+      })));
+    }, 50);
+
+    return () => clearInterval(animateInterval);
+  }, []);
+
+  // Enhanced glitch effect for text
+  useEffect(() => {
+    const glitchChars = '█▓▒░!@#$%^&*()_+-=[]{}|;:,.<>?~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const originalTexts = {
+      verify: 'VERIFY',
+      your: 'YOUR', 
+      website: 'WEBSITE',
+      security: 'SECURITY',
+      headers: 'HEADERS',
+      validation: 'VALIDATION'
+    };
+
+    const glitchInterval = setInterval(() => {
+      if (Math.random() < 0.7) { // 70% chance to glitch - more frequent
+        const keys = Object.keys(originalTexts);
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        const originalText = originalTexts[randomKey];
+        
+        let glitchedText = '';
+        for (let i = 0; i < originalText.length; i++) {
+          if (Math.random() < 0.4) { // 40% chance per character - more intense
+            glitchedText += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+          } else {
+            glitchedText += originalText[i];
+          }
+        }
+        
+        setGlitchText(prev => ({ ...prev, [randomKey]: glitchedText }));
+        
+        // Multiple glitch phases for game-like effect
+        setTimeout(() => {
+          let secondGlitch = '';
+          for (let i = 0; i < originalText.length; i++) {
+            if (Math.random() < 0.3) {
+              secondGlitch += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+            } else {
+              secondGlitch += originalText[i];
+            }
+          }
+          setGlitchText(prev => ({ ...prev, [randomKey]: secondGlitch }));
+        }, 80);
+        
+        // Final reset
+        setTimeout(() => {
+          setGlitchText(prev => ({ ...prev, [randomKey]: originalText }));
+        }, 200);
+      }
+    }, 400); // Faster interval - more game-like
+
+    return () => clearInterval(glitchInterval);
+  }, []);
+
+  // Mouse movement handler with enter/leave detection
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (headerRef.current) {
+        const rect = headerRef.current.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        setMousePosition({ x, y });
+        
+        // Highlight nearby terminal lines
+        setTerminalLines(prev => prev.map(line => {
+          const distance = Math.sqrt(Math.pow(line.x - x, 2) + Math.pow(line.y - y, 2));
+          const isNear = distance < 25;
+          return {
+            ...line,
+            highlighted: isNear,
+            opacity: isNear ? 0.8 : 0.2,
+            color: isNear ? 
+              (line.type === 'header' ? '#10b981' : line.type === 'command' ? '#f97316' : '#94a3b8') :
+              (line.type === 'command' ? '#475569' : line.type === 'header' ? '#059669' : '#64748b')
+          };
+        }));
+      }
+    };
+
+    const handleMouseEnter = () => {
+      setIsMouseInHeader(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsMouseInHeader(false);
+      // Reset all terminal lines to original color
+      setTerminalLines(prev => prev.map(line => ({
+        ...line,
+        highlighted: false,
+        opacity: 0.2,
+        color: line.type === 'command' ? '#475569' : line.type === 'header' ? '#059669' : '#64748b'
+      })));
+    };
+
+    const header = headerRef.current;
+    if (header) {
+      header.addEventListener('mousemove', handleMouseMove);
+      header.addEventListener('mouseenter', handleMouseEnter);
+      header.addEventListener('mouseleave', handleMouseLeave);
+      return () => {
+        header.removeEventListener('mousemove', handleMouseMove);
+        header.removeEventListener('mouseenter', handleMouseEnter);
+        header.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
+  }, []);
 
   const validateUrls = async () => {
     let urls = [];
@@ -346,29 +514,47 @@ function App() {
 
   return (
     <div className="container">
-      <div className="header">
+      <div className="header" ref={headerRef}>
+        <div className="terminal-background">
+          {terminalLines.map((line) => (
+            <div 
+              key={line.id} 
+              className="terminal-line animated"
+              style={{
+                left: `${line.x}%`,
+                top: `${line.y}%`,
+                color: line.color,
+                opacity: line.opacity,
+                transform: `translate(-50%, -50%)`,
+                transition: 'color 0.3s ease, opacity 0.3s ease'
+              }}
+            >
+              {line.type === 'command' ? (
+                <><span className="terminal-prompt">$</span> {line.text.replace('$ ', '')}</>
+              ) : (
+                line.text
+              )}
+            </div>
+          ))}
+        </div>
         <div className="brand-section">
           <div className="brand-text">
-            <span className="verify-text">VERIFY</span>
+            <span className="verify-text glitch-text">{glitchText.verify}</span>
             <div className="security-icon">🔒</div>
-            <span className="your-text">YOUR</span>
+            <span className="your-text glitch-text">{glitchText.your}</span>
           </div>
           <div className="website-text">
-            <span className="website">WEBSITE</span>
+            <span className="website glitch-text">{glitchText.website}</span>
             <span className="brackets">&lt;/&gt;</span>
-            <span className="security">SECURITY</span>
+            <span className="security glitch-text">{glitchText.security}</span>
           </div>
           <div className="headers-text">
-            <span className="headers-script">HEADERS</span>
-            <span className="headers">VALIDATION</span>
+            <span className="headers-script glitch-text">{glitchText.headers}</span>
+            <span className="headers glitch-text">{glitchText.validation}</span>
           </div>
         </div>
         <div className="subtitle">
           <span>Comprehensive security header analysis and recommendations</span>
-          <div className="more-info">
-            <span>START SCAN</span>
-            <span className="arrow">&gt;</span>
-          </div>
         </div>
       </div>
 
