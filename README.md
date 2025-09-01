@@ -1,15 +1,17 @@
 # Security Header Validator
 
-A comprehensive Node.js tool to validate security headers on websites and identify potential vulnerabilities.
+A modern React web application to validate security headers on websites and identify potential vulnerabilities.
 
 ## 🚀 Features
 
-- **Batch URL Processing** - Check multiple URLs from file or command line
-- **Progress Tracking** - Real-time progress bar for large URL lists
-- **Multiple Output Formats** - Console table, detailed analysis, CSV export, JSON
+- **Modern Web Interface** - Beautiful, responsive React frontend
+- **Real-time Validation** - Instant security header analysis
+- **Single & Batch Processing** - Check one URL or multiple URLs at once
+- **Visual Results** - Color-coded security header status grid
+- **Security Recommendations** - Actionable fixes with priority levels
 - **Redirect Following** - Automatically follows redirects to check final destination
-- **Concurrent Processing** - Efficient batch processing with configurable concurrency
 - **Comprehensive Analysis** - Checks 8 critical security headers
+- **Mobile Responsive** - Works perfectly on all devices
 
 ## 📦 Installation
 
@@ -18,53 +20,47 @@ A comprehensive Node.js tool to validate security headers on websites and identi
 git clone <repository-url>
 cd security-header-validation
 
-# Install dependencies
+# Install server dependencies
 npm install
+
+# Install client dependencies
+cd client
+npm install
+cd ..
 ```
 
 ## 🔧 Usage
 
-### Basic Usage
+### Development Mode (Recommended)
 ```bash
-# Check single URL
-node security-header-validator.js google.com
-
-# Check multiple URLs
-node security-header-validator.js google.com github.com stackoverflow.com
-
-# Check URLs from file
-node security-header-validator.js --file urls.txt
-
-# Check comma-separated URLs
-node security-header-validator.js "google.com,github.com,stackoverflow.com"
+# Start both server and client in development mode
+npm run dev
 ```
+This will start:
+- Backend API server on `http://localhost:5000`
+- React frontend on `http://localhost:3000`
 
-### Options
+### Production Mode
 ```bash
-# Show progress bar (recommended for large lists)
-node security-header-validator.js -p --file urls.txt
+# Build the React app
+npm run build
 
-# Summary only (hide detailed analysis)
-node security-header-validator.js -s --file urls.txt
-
-# Export to CSV
-node security-header-validator.js -c results.csv --file urls.txt
-
-# Show security recommendations
-node security-header-validator.js -r --file urls.txt
-
-# Combine all options
-node security-header-validator.js -p -s -r -c audit.csv --file urls.txt
+# Start the production server
+npm start
 ```
+The app will be available at `http://localhost:5000`
 
-### Command Line Options
-- `-f, --file <file>` - File containing URLs to check (one per line)
-- `-u, --urls <urls>` - Comma-separated list of URLs
-- `-p, --progress` - Show progress bar during validation
-- `-s, --summary` - Show only summary table, hide detailed analysis
-- `-c, --csv <filename>` - Export results to CSV file
-- `-r, --recommendations` - Show security recommendations for fixing missing headers
-- `-h, --help` - Show help information
+### Individual Commands
+```bash
+# Start only the backend server
+npm run server
+
+# Start only the React client (requires backend to be running)
+npm run client
+
+# Build the React app for production
+npm run build
+```
 
 ## 📊 Output Formats
 

@@ -163,3 +163,10 @@ coverage/
 urls-*.txt
 custom-urls.txt
 private-urls.txt
+#Paths added by Azion CLI
+.edge/
+.vulcan
+.open-next
+
+# Allow client public folder
+!client/public/

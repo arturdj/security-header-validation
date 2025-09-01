@@ -1,16 +1,28 @@
 {
   "name": "security-header-validator",
   "version": "1.0.0",
-  "description": "A tool to validate security headers on websites",
-  "main": "security-header-validator.js",
+  "description": "A React web application to validate security headers on websites",
+  "main": "server/server.js",
   "scripts": {
-    "start": "node security-header-validator.js"
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/server.js",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "start": "node server/server.js",
+    "install-client": "cd client && npm install",
+    "heroku-postbuild": "npm run install-client && npm run build"
   },
   "dependencies": {
     "axios": "^1.6.0",
-    "yargs": "^17.7.2"
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0"
   },
-  "keywords": ["security", "headers", "validation", "web"],
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["security", "headers", "validation", "web", "react"],
   "author": "",
   "license": "MIT"
 }
