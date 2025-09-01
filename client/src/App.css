@@ -7,9 +7,9 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
   min-height: 100vh;
-  color: #ffffff;
+  color: #f8fafc;
   overflow-x: hidden;
 }
 
@@ -20,16 +20,16 @@ body {
   min-height: 100vh;
 }
 
-/* Bold Header Design */
+/* Elegant Header Design */
 .header {
   text-align: center;
   margin-bottom: 60px;
-  background: linear-gradient(135deg, #2a2a3e 0%, #1e1e32 100%);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(51, 65, 85, 0.9) 100%);
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 60px 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.15);
   position: relative;
   overflow: hidden;
 }
@@ -194,13 +194,13 @@ body {
 
 /* Input Section - Dark Theme */
 .input-section {
-  background: linear-gradient(135deg, rgba(42, 42, 62, 0.9) 0%, rgba(30, 30, 50, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.7) 100%);
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 40px;
   margin-bottom: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .input-group {
@@ -220,12 +220,12 @@ body {
 .input-group textarea {
   width: 100%;
   padding: 18px 24px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(148, 163, 184, 0.2);
   border-radius: 16px;
   font-size: 1rem;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f8fafc;
   font-family: inherit;
 }
 
@@ -237,10 +237,10 @@ body {
 .input-group input:focus,
 .input-group textarea:focus {
   outline: none;
-  border-color: #ff6b00;
-  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.2);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 4px 12px rgba(59, 130, 246, 0.1);
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.8);
 }
 
 .input-group textarea {
@@ -296,19 +296,21 @@ body {
 }
 
 .btn {
-  padding: 18px 32px;
+  padding: 16px 28px;
   border: none;
-  border-radius: 16px;
-  font-size: 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: inherit;
   text-decoration: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary {
@@ -323,20 +325,40 @@ body {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(148, 163, 184, 0.1);
+  color: #e2e8f0;
+  border: 2px solid rgba(148, 163, 184, 0.2);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(148, 163, 184, 0.15);
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(148, 163, 184, 0.3);
+  box-shadow: 0 6px 20px rgba(148, 163, 184, 0.15);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Success Button Style - Dark Theme */
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+}
+
+.btn-success:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+/* Small Button Variant */
+.btn-small {
+  padding: 10px 16px;
+  font-size: 0.9rem;
 }
 
 /* Loading and Error States - Dark Theme */
@@ -377,12 +399,13 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Results Section - Flat & Compact */
+/* Results Section - Modern & Elegant */
 .results-section {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(148, 163, 184, 0.05);
 }
 
 .results-section h2 {
@@ -395,16 +418,19 @@ body {
 
 /* Accordion Styles - Flat & Compact */
 .accordion-item {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  margin-bottom: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 12px;
+  margin-bottom: 16px;
   overflow: hidden;
-  transition: border-color 0.2s ease;
-  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .accordion-item:hover {
-  border-color: rgba(255, 107, 0, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .accordion-header {
@@ -418,7 +444,7 @@ body {
 }
 
 .accordion-header:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(59, 130, 246, 0.05);
 }
 
 .accordion-title {
@@ -564,35 +590,41 @@ body {
 }
 
 .security-item.enabled {
-  background: rgba(42, 42, 62, 0.6);
-  border-color: rgba(0, 212, 170, 0.4);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
 }
 
 .security-item.disabled {
-  background: rgba(42, 42, 62, 0.6);
-  border-color: rgba(255, 71, 87, 0.4);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
 }
 
 .security-name {
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 6px;
-  color: #ffffff;
+  color: #f8fafc;
   font-size: 0.85rem;
+  letter-spacing: 0.01em;
 }
 
 .security-status {
   font-size: 0.75rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  color: rgba(248, 250, 252, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Recommendations - Flat & Compact */
+/* Recommendations - Modern & Elegant */
 .recommendations {
-  margin-top: 20px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(51, 65, 85, 0.5) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .recommendations h4 {
@@ -610,18 +642,21 @@ body {
 }
 
 .recommendation-item.high {
-  background: rgba(255, 71, 87, 0.1);
-  border-left-color: #ff4757;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%) !important;
+  border-left-color: #ef4444;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
 }
 
 .recommendation-item.medium {
-  background: rgba(255, 107, 0, 0.1);
-  border-left-color: #ff6b00;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%) !important;
+  border-left-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
 }
 
 .recommendation-item.low {
-  background: rgba(0, 153, 255, 0.1);
-  border-left-color: #0099ff;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%) !important;
+  border-left-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
 }
 
 .recommendation-header {
@@ -634,20 +669,26 @@ body {
 .recommendation-fix,
 .recommendation-item > div:last-child {
   font-size: 0.8rem;
-  color: #8892b0;
-  margin-bottom: 4px;
-  line-height: 1.4;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  line-height: 1.5;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
 .success-message {
   text-align: center;
-  padding: 16px;
-  background: rgba(0, 212, 170, 0.1);
-  border-radius: 6px;
-  color: #00d4aa;
-  font-weight: 500;
-  font-size: 0.9rem;
-  border: 1px solid rgba(0, 212, 170, 0.2);
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+  border-radius: 12px;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
 }
 
 /* Error Details - Flat & Compact */
@@ -768,24 +809,6 @@ body {
 .file-remove-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* Success Button Style - Dark Theme */
-.btn-success {
-  background: linear-gradient(135deg, #00d4aa, #01a085);
-  color: white;
-  box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
-}
-
-.btn-success:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(0, 212, 170, 0.4);
-}
-
-/* Small Button Variant */
-.btn-small {
-  padding: 10px 16px;
-  font-size: 0.9rem;
 }
 
 /* Results Header - Flat & Compact */
