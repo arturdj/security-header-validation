@@ -1,4 +1,92 @@
-README
+# Security Header Validator
+
+A comprehensive Node.js tool to validate security headers on websites and identify potential vulnerabilities.
+
+## 🚀 Features
+
+- **Batch URL Processing** - Check multiple URLs from file or command line
+- **Progress Tracking** - Real-time progress bar for large URL lists
+- **Multiple Output Formats** - Console table, detailed analysis, CSV export, JSON
+- **Redirect Following** - Automatically follows redirects to check final destination
+- **Concurrent Processing** - Efficient batch processing with configurable concurrency
+- **Comprehensive Analysis** - Checks 8 critical security headers
+
+## 📦 Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd security-header-validation
+
+# Install dependencies
+npm install
+```
+
+## 🔧 Usage
+
+### Basic Usage
+```bash
+# Check single URL
+node security-header-validator.js google.com
+
+# Check multiple URLs
+node security-header-validator.js google.com github.com stackoverflow.com
+
+# Check URLs from file
+node security-header-validator.js --file urls.txt
+
+# Check comma-separated URLs
+node security-header-validator.js "google.com,github.com,stackoverflow.com"
+```
+
+### Options
+```bash
+# Show progress bar (recommended for large lists)
+node security-header-validator.js -p --file urls.txt
+
+# Summary only (hide detailed analysis)
+node security-header-validator.js -s --file urls.txt
+
+# Export to CSV
+node security-header-validator.js -c results.csv --file urls.txt
+
+# Combine options
+node security-header-validator.js -p -s -c audit.csv --file urls.txt
+```
+
+### Command Line Options
+- `-f, --file <file>` - File containing URLs to check (one per line)
+- `-u, --urls <urls>` - Comma-separated list of URLs
+- `-p, --progress` - Show progress bar during validation
+- `-s, --summary` - Show only summary table, hide detailed analysis
+- `-c, --csv <filename>` - Export results to CSV file
+- `-h, --help` - Show help information
+
+## 📊 Output Formats
+
+### Console Table
+Visual summary showing ✅/❌ status for each security header per URL.
+
+### Detailed Analysis
+Comprehensive breakdown including:
+- Redirect information
+- Header values and configurations
+- Security recommendations
+- Missing header warnings
+
+### CSV Export
+Spreadsheet-ready format with:
+- Original and final URLs
+- Redirect status
+- All security header statuses
+- Error messages
+
+### JSON Export
+Raw data format (`security-results.json`) for programmatic processing.
+
+## 🛡️ Security Headers Checked
+
+
 
 ## **🔒 HSTS (HTTP Strict Transport Security)**
 **Purpose**: Forces HTTPS connections and prevents downgrade attacks
