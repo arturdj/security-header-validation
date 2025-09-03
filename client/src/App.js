@@ -7,10 +7,7 @@ function App() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showRecommendations, setShowRecommendations] = useState(true);
-  const [expandedResults, setExpandedResults] = useState(new Set());
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isMouseInHeader, setIsMouseInHeader] = useState(false);
+  const [expandedResults, setExpandedResults] = useState(new Set()); 
   const [terminalLines, setTerminalLines] = useState([]);
   const [glitchText, setGlitchText] = useState({
     verify: 'VERIFY',
@@ -133,7 +130,7 @@ function App() {
         const rect = headerRef.current.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
-        setMousePosition({ x, y });
+        // Mouse position tracking removed
         
         // Highlight nearby terminal lines
         setTerminalLines(prev => prev.map(line => {
@@ -152,11 +149,10 @@ function App() {
     };
 
     const handleMouseEnter = () => {
-      setIsMouseInHeader(true);
+      // Mouse tracking removed
     };
 
     const handleMouseLeave = () => {
-      setIsMouseInHeader(false);
       // Reset all terminal lines to original color
       setTerminalLines(prev => prev.map(line => ({
         ...line,
@@ -222,8 +218,13 @@ function App() {
     setError('');
     setResults([]);
 
+    const api = axios.create({
+      baseURL: process.env.REACT_APP_API_BASE_URL,
+      withCredentials: true, // importante se usar cookies/session
+    });
+
     try {
-      const response = await axios.post('/api/validate-batch', {
+      const response = await api.post('/api/validate-batch', {
         urls: urls
       });
       setResults(response.data);
@@ -333,157 +334,222 @@ function App() {
     setExpandedResults(newExpanded);
   };
 
-  const getSecurityItemClass = (enabled) => {
-    return `security-item ${enabled ? 'enabled' : 'disabled'}`;
+
+  const getStatusLegend = (status) => {
+    if (status >= 200 && status < 300) return 'Success';
+    if (status >= 300 && status < 400) return 'Redirect';
+    if (status >= 400 && status < 500) return 'Client Error';
+    if (status >= 500) return 'Server Error';
+    return 'Unknown';
   };
 
-  const getPriorityClass = (priority) => {
-    return priority ? priority.toLowerCase() : 'medium';
+  const getHeaderRecommendation = (headerKey, headerData, isEnabled, isCorsWildcard) => {
+    const hasIssue = !isEnabled || isCorsWildcard;
+    
+    if (hasIssue) {
+      const recommendations = {
+        hsts: {
+          issue: 'Missing HTTP Strict Transport Security',
+          fix: 'Add header: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
+          impact: 'Prevents HTTPS downgrade attacks and man-in-the-middle attacks'
+        },
+        csp: {
+          issue: 'Missing Content Security Policy',
+          fix: 'Add header: Content-Security-Policy: default-src \'self\'; script-src \'self\'',
+          impact: 'Prevents XSS attacks and code injection vulnerabilities'
+        },
+        xFrameOptions: {
+          issue: 'Missing X-Frame-Options protection',
+          fix: 'Add header: X-Frame-Options: DENY',
+          impact: 'Prevents clickjacking attacks and UI redressing'
+        },
+        xContentTypeOptions: {
+          issue: 'Missing MIME type protection',
+          fix: 'Add header: X-Content-Type-Options: nosniff',
+          impact: 'Prevents MIME-type sniffing attacks and file upload exploits'
+        },
+        referrerPolicy: {
+          issue: 'Missing referrer policy',
+          fix: 'Add header: Referrer-Policy: strict-origin-when-cross-origin',
+          impact: 'Protects user privacy and prevents information leakage'
+        },
+        permissionsPolicy: {
+          issue: 'Missing permissions policy',
+          fix: 'Add header: Permissions-Policy: camera=(), microphone=(), geolocation=()',
+          impact: 'Limits browser feature access and reduces attack surface'
+        },
+        cors: {
+          issue: isCorsWildcard ? 'Overly permissive CORS policy (wildcard)' : 'CORS configuration detected',
+          fix: isCorsWildcard ? 'Replace Access-Control-Allow-Origin: * with specific domains' : 'Review CORS configuration for security',
+          impact: isCorsWildcard ? 'Prevents unauthorized cross-origin requests and data theft' : 'Ensure proper cross-origin access control'
+        },
+        xssProtection: {
+          issue: 'Legacy XSS protection header',
+          fix: 'Consider using CSP instead of X-XSS-Protection',
+          impact: 'Modern CSP provides better XSS protection than legacy headers'
+        }
+      };
+      return recommendations[headerKey] || null;
+    } else {
+      // Explanations for properly configured headers
+      const explanations = {
+        hsts: {
+          explanation: 'HSTS is properly configured',
+          meaning: headerData?.details ? `Forces HTTPS for ${Math.floor((headerData.details.maxAge || 0) / 86400)} days${headerData.details.includeSubDomains ? ', includes subdomains' : ''}${headerData.details.preload ? ', eligible for browser preload list' : ''}` : 'Enforces secure HTTPS connections',
+          benefit: 'Protects against protocol downgrade attacks and cookie hijacking'
+        },
+        csp: {
+          explanation: 'Content Security Policy is active',
+          meaning: headerData?.details ? `Policy contains ${headerData.details.directiveCount || 0} directives${headerData.details.hasDefaultSrc ? ', has default-src' : ''}${headerData.details.hasScriptSrc ? ', has script-src' : ''}` : 'Controls resource loading and execution',
+          benefit: 'Prevents XSS attacks by controlling which resources can be loaded'
+        },
+        xFrameOptions: {
+          explanation: 'Frame protection is enabled',
+          meaning: headerData?.value ? `Set to "${headerData.value}" - ${headerData.value.toUpperCase() === 'DENY' ? 'completely blocks framing' : headerData.value.toUpperCase() === 'SAMEORIGIN' ? 'allows framing by same origin only' : 'custom frame policy'}` : 'Prevents page from being embedded in frames',
+          benefit: 'Protects against clickjacking and UI redressing attacks'
+        },
+        xContentTypeOptions: {
+          explanation: 'MIME type sniffing protection active',
+          meaning: 'Set to "nosniff" - browsers will not try to guess content types',
+          benefit: 'Prevents MIME confusion attacks and malicious file uploads'
+        },
+        referrerPolicy: {
+          explanation: 'Referrer policy is configured',
+          meaning: headerData?.value ? `Policy: "${headerData.value}" - ${headerData.details?.isStrict ? 'strict privacy protection' : 'balanced privacy and functionality'}` : 'Controls referrer information sent with requests',
+          benefit: 'Protects user privacy and prevents information leakage'
+        },
+        permissionsPolicy: {
+          explanation: 'Permissions policy is active',
+          meaning: headerData?.details ? `Controls ${headerData.details.featureCount || 0} browser features` : 'Restricts access to browser APIs and features',
+          benefit: 'Reduces attack surface by limiting available browser capabilities'
+        },
+        cors: {
+          explanation: 'CORS policy is configured',
+          meaning: headerData?.details ? `Origin: ${headerData.details.allowOrigin || 'not set'}, Methods: ${headerData.details.allowMethods || 'not set'}` : 'Cross-origin resource sharing is configured',
+          benefit: 'Controls which domains can access your resources'
+        },
+        xssProtection: {
+          explanation: 'XSS protection header present',
+          meaning: headerData?.value ? `Set to "${headerData.value}"` : 'Legacy XSS protection is enabled',
+          benefit: 'Provides basic XSS protection in older browsers (consider upgrading to CSP)'
+        }
+      };
+      return explanations[headerKey] || null;
+    }
   };
 
   const renderSecurityHeaders = (security) => {
     const headers = [
-      { key: 'hsts', name: 'HSTS', fullName: 'HTTP Strict Transport Security' },
-      { key: 'csp', name: 'CSP', fullName: 'Content Security Policy' },
-      { key: 'xFrameOptions', name: 'X-Frame-Options', fullName: 'X-Frame-Options' },
-      { key: 'xContentTypeOptions', name: 'X-Content-Type', fullName: 'X-Content-Type-Options' },
-      { key: 'referrerPolicy', name: 'Referrer Policy', fullName: 'Referrer-Policy' },
-      { key: 'permissionsPolicy', name: 'Permissions', fullName: 'Permissions-Policy' },
-      { key: 'xssProtection', name: 'XSS Protection', fullName: 'X-XSS-Protection' },
-      { key: 'cors', name: 'CORS', fullName: 'Cross-Origin Resource Sharing' }
+      { key: 'hsts', name: 'HSTS', fullName: 'HTTP Strict Transport Security', priority: 'HIGH', description: 'Forces HTTPS connections' },
+      { key: 'csp', name: 'CSP', fullName: 'Content Security Policy', priority: 'HIGH', description: 'Prevents XSS and injection attacks' },
+      { key: 'xFrameOptions', name: 'X-Frame-Options', fullName: 'X-Frame-Options', priority: 'MEDIUM', description: 'Prevents clickjacking attacks' },
+      { key: 'xContentTypeOptions', name: 'X-Content-Type-Options', fullName: 'X-Content-Type-Options', priority: 'MEDIUM', description: 'Prevents MIME-type sniffing' },
+      { key: 'referrerPolicy', name: 'Referrer-Policy', fullName: 'Referrer-Policy', priority: 'MEDIUM', description: 'Controls referrer information' },
+      { key: 'cors', name: 'CORS', fullName: 'Cross-Origin Resource Sharing', priority: 'MEDIUM', description: 'Controls cross-origin requests' },
+      { key: 'permissionsPolicy', name: 'Permissions-Policy', fullName: 'Permissions-Policy', priority: 'LOW', description: 'Controls browser features' },
+      { key: 'xssProtection', name: 'X-XSS-Protection', fullName: 'X-XSS-Protection', priority: 'LOW', description: 'Legacy XSS protection' }
     ];
 
+    // Sort by status (disabled/missing first) then by priority (high to low)
+    const priorityOrder = { 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3 };
+    const sortedHeaders = headers.sort((a, b) => {
+      const aEnabled = security[a.key]?.enabled;
+      const bEnabled = security[b.key]?.enabled;
+      const aCorsWildcard = a.key === 'cors' && security[a.key]?.details?.isWildcard;
+      const bCorsWildcard = b.key === 'cors' && security[b.key]?.details?.isWildcard;
+      
+      // First sort by status: disabled/missing/problematic first
+      if ((!aEnabled || aCorsWildcard) && (bEnabled && !bCorsWildcard)) return -1;
+      if ((aEnabled && !aCorsWildcard) && (!bEnabled || bCorsWildcard)) return 1;
+      
+      // Then sort by priority: high to low
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
+
     return (
-      <div className="security-grid">
-        {headers.map(header => (
-          <div key={header.key} className={getSecurityItemClass(security[header.key]?.enabled)}>
-            <div className="security-name" title={header.fullName}>
-              {header.name}
-            </div>
-            <div className="security-status">
-              {security[header.key]?.enabled ? '✅ Enabled' : '❌ Missing'}
-            </div>
-          </div>
-        ))}
+      <div className="security-table-container">
+        <table className="security-table">
+          <thead>
+            <tr>
+              <th>Security Header</th>
+              <th>Status & Value</th>
+              <th>Analysis & Recommendations</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedHeaders.map(header => {
+              const headerData = security[header.key];
+              const isEnabled = headerData?.enabled;
+              const isCorsWildcard = header.key === 'cors' && headerData?.details?.isWildcard;
+              const hasIssue = !isEnabled || isCorsWildcard;
+              const headerValue = headerData?.value || headerData?.reason || 'Not set';
+              const recommendation = getHeaderRecommendation(header.key, headerData, isEnabled, isCorsWildcard);
+              
+              return (
+                <tr key={header.key} className={hasIssue ? 'header-disabled' : 'header-enabled'}>
+                  <td>
+                    <div className="header-name">
+                      <div className="header-title">
+                        <strong>{header.name}</strong>
+                        <span className={`priority-tag priority-${header.priority.toLowerCase()}`}>
+                          {header.priority}
+                        </span>
+                      </div>
+                      <div className="header-full-name">{header.fullName}</div>
+                      <div className="header-description">{header.description}</div>
+                    </div>
+                  </td>
+                  <td className="status-value-cell">
+                    <div className="status-indicator-wrapper">
+                      <span className={`status-indicator ${hasIssue ? 'disabled' : 'enabled'}`}>
+                        {hasIssue ? (isCorsWildcard ? '⚠️ Issue' : '❌ Missing') : '✅ Found'}
+                      </span>
+                    </div>
+                    <div className="header-value">
+                      <code>{headerValue}</code>
+                    </div>
+                  </td>
+                  <td className="recommendation-cell">
+                    {recommendation ? (
+                      hasIssue ? (
+                        <div className="inline-recommendation issue">
+                          <div className="recommendation-issue">
+                            <strong>Issue:</strong> {recommendation.issue}
+                          </div>
+                          <div className="recommendation-fix">
+                            <strong>Fix:</strong> {recommendation.fix}
+                          </div>
+                          <div className="recommendation-impact">
+                            <strong>Impact:</strong> {recommendation.impact}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="inline-recommendation success">
+                          <div className="recommendation-explanation">
+                            <strong>✅ {recommendation.explanation}</strong>
+                          </div>
+                          <div className="recommendation-meaning">
+                            <strong>Current setting:</strong> {recommendation.meaning}
+                          </div>
+                          <div className="recommendation-benefit">
+                            <strong>Security benefit:</strong> {recommendation.benefit}
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <span className="no-analysis">No analysis available</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     );
   };
 
-  const renderRecommendations = (result) => {
-    if (!showRecommendations) return null;
 
-    const recommendations = getRecommendations(result);
-    
-    if (recommendations.length === 0) {
-      return (
-        <div className="recommendations">
-          <h4>🎉 Recommendations</h4>
-          <div className="success-message">
-            All critical security headers are properly configured!
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="recommendations">
-        <h4>🔧 Security Recommendations ({recommendations.length})</h4>
-        {recommendations.map((rec, index) => (
-          <div key={index} className={`recommendation-item ${getPriorityClass(rec.priority)}`}>
-            <div className="recommendation-header">
-              {rec.priority === 'HIGH' ? '🔴' : rec.priority === 'MEDIUM' ? '🟡' : '🟢'} 
-              {rec.priority} - {rec.header}: {rec.issue}
-            </div>
-            <div className="recommendation-fix">
-              💡 Fix: {rec.fix}
-            </div>
-            <div>
-              🎯 Impact: {rec.impact}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  const getRecommendations = (result) => {
-    const recommendations = [];
-    const security = result.security;
-    
-    if (!security) return recommendations;
-    
-    if (!security.hsts?.enabled) {
-      recommendations.push({
-        header: 'HSTS',
-        issue: 'Missing HTTP Strict Transport Security',
-        fix: 'Add header: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
-        priority: 'HIGH',
-        impact: 'Prevents HTTPS downgrade attacks and man-in-the-middle attacks'
-      });
-    }
-    
-    if (!security.csp?.enabled) {
-      recommendations.push({
-        header: 'CSP',
-        issue: 'Missing Content Security Policy',
-        fix: 'Add header: Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\'',
-        priority: 'HIGH',
-        impact: 'Prevents XSS attacks and code injection vulnerabilities'
-      });
-    }
-    
-    if (!security.xFrameOptions?.enabled) {
-      recommendations.push({
-        header: 'X-Frame-Options',
-        issue: 'Missing X-Frame-Options protection',
-        fix: 'Add header: X-Frame-Options: DENY',
-        priority: 'MEDIUM',
-        impact: 'Prevents clickjacking attacks and UI redressing'
-      });
-    }
-    
-    if (!security.xContentTypeOptions?.enabled) {
-      recommendations.push({
-        header: 'X-Content-Type-Options',
-        issue: 'Missing MIME type protection',
-        fix: 'Add header: X-Content-Type-Options: nosniff',
-        priority: 'MEDIUM',
-        impact: 'Prevents MIME-type sniffing attacks and file upload exploits'
-      });
-    }
-    
-    if (!security.referrerPolicy?.enabled) {
-      recommendations.push({
-        header: 'Referrer-Policy',
-        issue: 'Missing referrer policy',
-        fix: 'Add header: Referrer-Policy: strict-origin-when-cross-origin',
-        priority: 'MEDIUM',
-        impact: 'Protects user privacy and prevents information leakage'
-      });
-    }
-    
-    if (!security.permissionsPolicy?.enabled) {
-      recommendations.push({
-        header: 'Permissions-Policy',
-        issue: 'Missing permissions policy',
-        fix: 'Add header: Permissions-Policy: camera=(), microphone=(), geolocation=()',
-        priority: 'LOW',
-        impact: 'Limits browser feature access and reduces attack surface'
-      });
-    }
-    
-    if (security.cors?.enabled && security.cors?.details?.isWildcard) {
-      recommendations.push({
-        header: 'CORS',
-        issue: 'Overly permissive CORS policy (wildcard)',
-        fix: 'Replace Access-Control-Allow-Origin: * with specific domains',
-        priority: 'HIGH',
-        impact: 'Prevents unauthorized cross-origin requests and data theft'
-      });
-    }
-    
-    return recommendations;
-  };
 
   const calculateSecurityScore = (security) => {
     if (!security) return 0;
@@ -628,16 +694,6 @@ function App() {
           )}
         </div>
 
-        <div className="options-section">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={showRecommendations}
-              onChange={(e) => setShowRecommendations(e.target.checked)}
-            />
-            <span>Show security recommendations</span>
-          </label>
-        </div>
       </div>
 
       {loading && (
@@ -693,7 +749,14 @@ function App() {
                         <span className="status-error">❌ Error</span>
                       ) : (
                         <>
-                          <span className="status-code">Status: {result.status}</span>
+                          <span className="status-code">
+                            Status: {result.status} ({getStatusLegend(result.status)})
+                          </span>
+                          {result.statusDescription && (
+                            <span className="status-description-inline">
+                              {result.statusDescription}
+                            </span>
+                          )}
                           {result.wasRedirected && (
                             <span className="redirect-badge">🔄 Redirected</span>
                           )}
@@ -723,11 +786,9 @@ function App() {
                         )}
                         
                         <div className="security-analysis">
-                          <h4>🛡️ Security Headers Analysis</h4>
+                          <h4>🛡️ Security Headers Analysis & Recommendations</h4>
                           {renderSecurityHeaders(result.security)}
                         </div>
-                        
-                        {renderRecommendations(result)}
                       </>
                     )}
                   </div>
