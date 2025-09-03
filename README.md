@@ -13,54 +13,133 @@ A modern React web application to validate security headers on websites and iden
 - **Comprehensive Analysis** - Checks 8 critical security headers
 - **Mobile Responsive** - Works perfectly on all devices
 
-## 📦 Installation
+## Installation
 
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm, yarn, or pnpm
+
+### Setup
+
+1. **Clone the repository**:
 ```bash
-# Clone the repository
 git clone <repository-url>
-cd security-header-validation
+cd security-headers-validation
+```
 
-# Install server dependencies
+2. **Install server dependencies**:
+```bash
+cd server-api
 npm install
+# or
+yarn install
+# or
+pnpm install
+```
 
-# Install client dependencies
+3. **Install client dependencies**:
+```bash
+cd ../client
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+4. **Set up environment variables**:
+```bash
+# In client directory
+cp .env.development .env.local
+```
+
+Update `.env.local` with your API server URL:
+```
+REACT_APP_API_BASE_URL=http://localhost:3333
+```
+
+## Usage
+
+### Development Environment
+
+#### Prerequisites
+- Ensure both server and client dependencies are installed
+- Node.js (v14 or higher) and npm/yarn/pnpm installed
+
+#### Running Development Servers
+
+1. **Start the API server** (in `server-api/` directory):
+```bash
+cd server-api
+npx edge-functions@latest dev
+```
+   - API server runs on `http://localhost:3333`
+   - Hot reload enabled for development
+
+2. **Start the client** (in `client/` directory):
+```bash
 cd client
-npm install
-cd ..
-```
-
-## 🔧 Usage
-
-### Development Mode (Recommended)
-```bash
-# Start both server and client in development mode
-npm run dev
-```
-This will start:
-- Backend API server on `http://localhost:5000`
-- React frontend on `http://localhost:3000`
-
-### Production Mode
-```bash
-# Build the React app
-npm run build
-
-# Start the production server
 npm start
+# or
+yarn start
 ```
-The app will be available at `http://localhost:5000`
+   - Client opens automatically at `http://localhost:3000`
+   - API requests are proxied to `http://localhost:3333`
+   - Hot reload enabled for development
 
-### Individual Commands
+#### Development Features
+- **Hot Reload**: Changes are reflected immediately in both server and client
+- **API Proxy**: Automatic proxying from client to backend server
+- **Debug Mode**: Enhanced error messages and logging
+
+### Production Environment
+
+#### Building for Production
+
+1. **Build the API server**:
 ```bash
-# Start only the backend server
-npm run server
-
-# Start only the React client (requires backend to be running)
-npm run client
-
-# Build the React app for production
-npm run build
+cd server-api
+npx edge-functions@latest build
 ```
+
+2. **Build the client**:
+```bash
+cd client
+npm run build
+# or
+yarn build
+```
+
+#### Deployment Options
+
+**Option 1: Azion Edge Platform (Recommended)**
+```bash
+# Deploy server
+cd server-api
+npx azion deploy
+
+# Deploy client
+cd client
+npm run build
+npx azion deploy
+```
+
+**Option 2: Static Hosting**
+```bash
+# Build and serve client
+cd client
+npm run build
+npx serve -s build
+```
+
+#### Environment Configuration
+
+| Component | Development | Production |
+|-----------|-------------|------------|
+| **API Server** | http://localhost:3333 | https://secheaders-api.azion.app |
+| **Client** | http://localhost:3000 | https://op3o13c4klm.map.azionedge.net |
+| **API Endpoint** | http://localhost:3333 | https://secheaders-api.azion.app |
 
 ## 📊 Output Formats
 
