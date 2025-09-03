@@ -1,0 +1,20 @@
+{
+  "name": "hono-boilerplate",
+  "version": "1.0.0",
+  "description": "hono boilerplate",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "aziontech",
+  "license": "ISC",
+  "dependencies": {
+    "azion": "latest",
+    "hono": "^4.5.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2"
+  }
+}

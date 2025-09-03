@@ -1,0 +1,57 @@
+{
+  "name": "sec-head-val",
+  "bucket": "sec-head-val",
+  "preset": "react",
+  "env": "production",
+  "prefix": "20250902111501",
+  "not-first-run": true,
+  "function": [],
+  "application": {
+    "id": 1756827429,
+    "name": "__DEFAULT__"
+  },
+  "domain": {
+    "id": 0,
+    "name": "__DEFAULT__",
+    "domain_name": "",
+    "url": ""
+  },
+  "rt-purge": {
+    "purge_on_publish": true
+  },
+  "origin": null,
+  "rules-engine": {
+    "created": false,
+    "rules": [
+      {
+        "id": 473687,
+        "name": "Deliver Static Assets",
+        "phase": "request"
+      },
+      {
+        "id": 473688,
+        "name": "Redirect to index.html",
+        "phase": "request"
+      }
+    ]
+  },
+  "cache-settings": [],
+  "workloads": {
+    "id": 1756824331,
+    "name": "sec-head-val",
+    "domains": [],
+    "url": "https://op3o13c4klm.map.azionedge.net",
+    "deployment_id": [
+      {
+        "id": 162451,
+        "name": "sec-head-val"
+      }
+    ]
+  },
+  "connectors": [
+    {
+      "id": 184,
+      "name": "sec-head-val"
+    }
+  ]
+}

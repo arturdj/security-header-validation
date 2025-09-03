@@ -1,70 +1,145 @@
 # Security Header Validator
 
-A comprehensive Node.js tool to validate security headers on websites and identify potential vulnerabilities.
+A modern React web application to validate security headers on websites and identify potential vulnerabilities.
 
 ## 🚀 Features
 
-- **Batch URL Processing** - Check multiple URLs from file or command line
-- **Progress Tracking** - Real-time progress bar for large URL lists
-- **Multiple Output Formats** - Console table, detailed analysis, CSV export, JSON
+- **Modern Web Interface** - Beautiful, responsive React frontend
+- **Real-time Validation** - Instant security header analysis
+- **Single & Batch Processing** - Check one URL or multiple URLs at once
+- **Visual Results** - Color-coded security header status grid
+- **Security Recommendations** - Actionable fixes with priority levels
 - **Redirect Following** - Automatically follows redirects to check final destination
-- **Concurrent Processing** - Efficient batch processing with configurable concurrency
 - **Comprehensive Analysis** - Checks 8 critical security headers
+- **Mobile Responsive** - Works perfectly on all devices
 
-## 📦 Installation
+## Installation
 
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm, yarn, or pnpm
+
+### Setup
+
+1. **Clone the repository**:
 ```bash
-# Clone the repository
 git clone <repository-url>
-cd security-header-validation
+cd security-headers-validation
+```
 
-# Install dependencies
+2. **Install server dependencies**:
+```bash
+cd server-api
 npm install
+# or
+yarn install
+# or
+pnpm install
 ```
 
-## 🔧 Usage
-
-### Basic Usage
+3. **Install client dependencies**:
 ```bash
-# Check single URL
-node security-header-validator.js google.com
-
-# Check multiple URLs
-node security-header-validator.js google.com github.com stackoverflow.com
-
-# Check URLs from file
-node security-header-validator.js --file urls.txt
-
-# Check comma-separated URLs
-node security-header-validator.js "google.com,github.com,stackoverflow.com"
+cd ../client
+npm install
+# or
+yarn install
+# or
+pnpm install
 ```
 
-### Options
+4. **Set up environment variables**:
 ```bash
-# Show progress bar (recommended for large lists)
-node security-header-validator.js -p --file urls.txt
-
-# Summary only (hide detailed analysis)
-node security-header-validator.js -s --file urls.txt
-
-# Export to CSV
-node security-header-validator.js -c results.csv --file urls.txt
-
-# Show security recommendations
-node security-header-validator.js -r --file urls.txt
-
-# Combine all options
-node security-header-validator.js -p -s -r -c audit.csv --file urls.txt
+# In client directory
+cp .env.development .env.local
 ```
 
-### Command Line Options
-- `-f, --file <file>` - File containing URLs to check (one per line)
-- `-u, --urls <urls>` - Comma-separated list of URLs
-- `-p, --progress` - Show progress bar during validation
-- `-s, --summary` - Show only summary table, hide detailed analysis
-- `-c, --csv <filename>` - Export results to CSV file
-- `-r, --recommendations` - Show security recommendations for fixing missing headers
-- `-h, --help` - Show help information
+Update `.env.local` with your API server URL:
+```
+REACT_APP_API_BASE_URL=http://localhost:3333
+```
+
+## Usage
+
+### Development Environment
+
+#### Prerequisites
+- Ensure both server and client dependencies are installed
+- Node.js (v14 or higher) and npm/yarn/pnpm installed
+
+#### Running Development Servers
+
+1. **Start the API server** (in `server-api/` directory):
+```bash
+cd server-api
+npx edge-functions@latest dev
+```
+   - API server runs on `http://localhost:3333`
+   - Hot reload enabled for development
+
+2. **Start the client** (in `client/` directory):
+```bash
+cd client
+npm start
+# or
+yarn start
+```
+   - Client opens automatically at `http://localhost:3000`
+   - API requests are proxied to `http://localhost:3333`
+   - Hot reload enabled for development
+
+#### Development Features
+- **Hot Reload**: Changes are reflected immediately in both server and client
+- **API Proxy**: Automatic proxying from client to backend server
+- **Debug Mode**: Enhanced error messages and logging
+
+### Production Environment
+
+#### Building for Production
+
+1. **Build the API server**:
+```bash
+cd server-api
+npx edge-functions@latest build
+```
+
+2. **Build the client**:
+```bash
+cd client
+npm run build
+# or
+yarn build
+```
+
+#### Deployment Options
+
+**Option 1: Azion Edge Platform (Recommended)**
+```bash
+# Deploy server
+cd server-api
+npx azion deploy
+
+# Deploy client
+cd client
+npm run build
+npx azion deploy
+```
+
+**Option 2: Static Hosting**
+```bash
+# Build and serve client
+cd client
+npm run build
+npx serve -s build
+```
+
+#### Environment Configuration
+
+| Component | Development | Production |
+|-----------|-------------|------------|
+| **API Server** | http://localhost:3333 | https://secheaders-api.azion.app |
+| **Client** | http://localhost:3000 | https://op3o13c4klm.map.azionedge.net |
+| **API Endpoint** | http://localhost:3333 | https://secheaders-api.azion.app |
 
 ## 📊 Output Formats
 
